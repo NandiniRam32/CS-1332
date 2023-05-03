@@ -1,0 +1,356 @@
+Selection Sort
+int min = 0;
+for (int i = 0; i < arr.length; i++) {
+	min = 1;
+	for (int j = i; j < arr.length; j++) {
+		if (comparator.compare(arr[j], arr[min]) < 0) {
+			min = j;
+		}
+	}
+	swap(i, min);
+}
+
+
+
+
+Cocktail Shaker Sort
+int swappedIndex = 0;
+int left = 0;
+int right = arr.length - 1;
+boolean swapped = true;
+while (swapped) {
+	swapped = false;
+	for (int i = swappedIndex; i < right; i++) {
+		if (comparator.compare(arr[i], arr[i+1]) > 0) {
+			swap(i, i+1);
+			swapped = true;
+			swappedIndex = i;
+		}
+	}
+	left = swappedIndex;
+	if (swapped) {
+		swapped = false;
+		for (int i = swappedIndex; i > left; i--) {
+			if (comparator.compare(arr[i], arr[i-1)) < 0) {
+				swap(i, i-1);
+				swapped = true;
+				swappedIndex = i;
+			}
+		}
+		left = swappedIndex;
+	} else {
+		break;
+	}
+}
+
+
+
+
+kthSelect/QuickSelect
+return (kthSelectHelper(k, arr, comparator, 0, arr.length, rand);
+kthSelectHelper:
+int pivotIndex = rand.nextInt(high - low) + low;
+T pivot = arr[pivotIndex];
+T temp = arr[pivotIndex];
+//swaps the front and the beginning
+arr[pivotIndex] = arr[low];
+arr[low] = temp;
+int left = low + 1;
+int right = high - 1;
+while (left <= right) {
+	while (left <= right && comparator.compare(arr[left], pivot) <= 0) {
+		left++;
+	}
+	while (left <= right && comparator.compare(arr[right], pivot) >= 0) {
+		right--;
+	}
+	if (left <= right) {
+		temp = arr[left];
+		arr[left] = arr[right];
+		arr[right] = temp;
+		left++;
+		right--;
+	}
+}
+temp = arr[right];
+arr[right] = arr[low];
+arr[low] = temp;
+if (right > k - 1) {
+	return kthSelectHelper(k, arr, comparator, low, right, rand);
+} else if (right < k - 1) {
+	return kthSelectHelper(k, arr, comparator, right + 1, high, rand);
+}
+return (arr[right]);
+
+
+
+
+lsdRadixSort(int[] arr)
+LinkedList<Integer>[] buckets = new LinkedList[19];
+boolean continue = true;
+int div = 1;
+for (LinkedList<Integer> bucket : buckets) {
+	bucket = new LinkedList<>();
+}
+while (continue) {
+	continue = false;
+	for (int num : arr) {
+		int bucket = num / div;
+		if (bucket / 10 != 0) {
+			continue = true;
+		}
+		if (buckets[bucket % 10 + 9] == null) {
+			buckets[bucket % 10 + 9] = new LinkedList<>();
+		}
+		buckets[bucket % 10 + 9].add(num);
+	}
+	int index = 0;
+	for (LinkedList<Integer> bucket : buckets) {
+		if (bucket != null) {
+			for (int num : bucket) {
+				arr[index++] = num;
+			}
+			bucket.clear();
+		}
+	}
+	div *= 10;
+}
+return (arr);
+
+
+
+
+heapSort
+int[] returnList = new int[data.size()];
+int value;
+PriorityQueue<Integer> heap = new PriorityQueue<>(data);
+for (int i = 0; i < data.size(); i++) {
+	value = (int) heap.remove();
+	returnList[i] = value;
+}
+return (returnList);
+
+
+
+
+kmp
+List<Integer> newList = new ArrayList<>();
+if (pattern.length() > text.length()) {
+	return newList;
+}
+int startingIndex = 0;
+int endIndex = startingIndex + pattern.length();
+int patternIndex = 0;
+int[] failTable = buildFailureTable(pattern, comparator);
+while (endIndex <= text.length()) {
+	while (patternIndex < pattern.length() && comparator.compare(pattern.charAt(patternIndex), text.charAt(startingIndex + patternIndex)) == 0) {
+		patternIndex++;
+	}
+	if (patternIndex == 0) {
+		startingIndex++;
+		endingIndex++;
+	} else {
+		if (patternIndex == pattern.length()) {
+			newList.add(startingIndex);
+		}
+		startingIndex += patternIndex - failTable[patternIndex - 1];
+		endIndex += patternIndex - failTable[patternIndex - 1];
+		patternIndex = failTable[patternIndex - 1];
+	}
+}
+return (newList);
+
+
+
+
+buildFailureTable
+int[] failTable = new int[pattern.length()];
+if (pattern.length() > 0) {
+	failTable[0] = 0;
+}
+int patternIndex = 0;
+int index = 0;
+while (patternIndex < pattern.length()) {
+	if (comparator.compare(pattern.charAt(patternIndex), pattern.charAt(index)) == 0) {
+		index++;
+		failTable[patternIndex] = index;
+		patternIndex++;
+	} else {
+		if (index == 0) {
+			failTable[patternIndex] = index;
+			patternIndex++;
+		} else {
+			index = failTable[index - 1];
+		}
+	}
+}
+return failTable;
+
+
+
+
+boyerMoore
+Map<Character, Integer> lastTable = buildLastTable(pattern);
+List<Integer> newList = new ArrayList<>();
+int patternLength = pattern.length();
+int textLength = text.length();
+int index = 0;
+int patternIndex = 0;
+int shift = 0;
+while (index <= textLength - patternLength) {
+	patternIndex = patternLength - 1;
+	while (patternIndex >= 0 && comparator.compare(pattern.charAt(patternIndex), text.charAt(index + patternIndex)) == 0) {
+		patternIndex--;
+	}
+	if (patternIndex == -1) {
+		newList.add(index);
+		index++;
+	} else {
+		shift = lastTable.getOrDefault(text.charAt(index + patternIndex), -1);
+		if (shift < patternIndex) {
+			index += (patternIndex - index);
+		} else {
+			index++;
+		}
+	}
+}
+return newList;
+
+
+
+buildLastTable
+Map<Character, Integer> lastTable = new HashMap<>();
+for (int i = 0; i < pattern.length(); i++) {
+	lastTable.put(pattern.charAt(i), i);
+}
+return lastTable;
+
+
+
+
+RabinKarp
+int patternHash = hash(pattern);
+int subHash = hash(text.subSequence(0, pattern.length()));
+if (patternHash == subHash && match(text.subSequence(0, pattern.length()), pattern, comparator) {
+	newList.add(0);
+}
+int i = 1;
+while (i < text.length() - pattern.length() + 1) {
+	subHash = (subHash - (text.charAt(i) * exponential(BASE, pattern.length() - 1))) * BASE + text.charAt(i + pattern.length() - 1);
+	if (patternHash == subHash && match(text.subSequence(i, i + pattern.length()), pattern, comparator) {
+		newList.add(i);
+	}
+	i++;
+}
+return (newList);
+
+
+
+
+bfs
+List<Vertex<T>> visitedSet = new LinkedList<>();
+Queue<Vertex<T>> queue = new LinkedList<>();
+visitedSet.add(start);
+queue.add(start);
+while (!queue.isEmpty()) {
+	Vertex<T> v 0= queue.remove();
+	for (VertexDistance<T> w: graph.getAdjList().get(v)) {
+		if (!(visitedSet.contains(w.getVertex()))) {
+			queue.add(w.getVertex());
+			visitedSet.add(w.getVertex());
+		}
+	}
+}
+return visitedSet;
+
+
+
+
+dfs
+visitedSet.add(start);
+list.add(start);
+for (VertexDistance<T> distance : graph.getAdjList.get(start)) {
+	if (!visitedSet.contains(distance.getVertex()) {
+		dfsHelper(distance.getVertex(), graph, list, visitedSet);
+	}
+}
+
+
+
+
+Dijkstras
+Set<Vertex<T>> visitedSet = new HashSet<>();
+Map<Character, Integer> returnMap = new HashMap<>();
+Queue<Vertex<T>> queue = new PriorityQueue<>();
+for (Vertex<T> v : graph.getVertices()) {
+	returnMap.put(v, Integer.MAX_VALUE()) {
+}
+queue.add(new VertexDistance<>(start, 0);
+while (queue.size() != 0 && !(visitedSet.size() == graph.getVertices.size())) {
+	VertexDistance<T> temp = queue.remove();
+	if (!visitedSet.contains(temp.getVertex()) {
+		visitedSet.add(temp.getVertex());
+		returnMap.put(temp.getVertex(), temp.getDistance());
+	}
+	for (VertexDistance<T> distance : graph.getAdjList.get(temp.getVertex())) {
+		if (!visitedSet.contains(distance.getVertex()) {
+			queue.add(new VertexDistance<>(distance.getVertex(), distance.getDistance() + temp.getDistance());
+		}
+	}
+}
+return returnMap;
+
+
+
+
+Set<Vertex<T>> visitedSet = new HashSet<>();
+Map<Character, Integer> returnMap = new HashMap<>();
+Queue<Vertex<T>> queue = new PriorityQueue<>();
+for (Vertex<T> v : graph.getVertices()) {
+	returnMap.put(v, Integer.MAX_VALUE()) {
+}
+queue.add(new VertexDistance<>(start, 0);
+while (queue.size() != 0 && !(visitedSet.size() == graph.getVertices().size())) {
+	VertexDistance<T> temp = queue.remove();
+	if (!visitedSet.contains(temp.getVertex()) {
+		visitedSet.add(temp.getVertex());
+		returnMap.put(temp.getVertex(), temp.getDistance());
+	}
+	for (VertexDistance<T> distance : graph.getAdjList.get(temp.getVertex())) {
+		if (!visitedSet.contains(distance.getVertex()) {
+			queue.add(new VertexDistance<>(distance.getVertex(), distance.getDistance() + temp.getDistance());
+		}
+	}
+}
+return returnMap;
+
+
+
+
+prims
+Queue<Edge<T> queue = new PriorityQueue<>();
+Set<Vertex<T>> visitedSet = new HashSet<>();
+Set<Edge<T>> edgeSet = new HashSet<>();
+Map<Vertex<T>, List<VertexDistance<T>>> map = graph.getAdjList();
+for (VertexDistance<T> distance : map.get(start)) {
+        priorityQueue.add(new Edge<>(start, distance.getVertex(), distance.getDistance()));
+    }
+    visitedSet.add(start);
+    while ((priorityQueue.size() != 0) && (visitedSet.size() < graph.getVertices().size())) {
+        Edge<T> edge = priorityQueue.remove();
+        if (!visitedSet.contains(edge.getV())) {
+            edgeSet.add(new Edge<>(edge.getU(), edge.getV(), edge.getWeight()));
+            edgeSet.add(new Edge<>(edge.getV(), edge.getU(), edge.getWeight()));
+            visitedSet.add(edge.getV());
+            for (VertexDistance<T> e: map.get(edge.getV())) {
+                if (!visitedSet.contains(e.getVertex())) {
+                    priorityQueue.add(new Edge<>(edge.getV(), e.getVertex(), e.getDistance()));
+                }
+            }
+        }
+    }
+    if (edgeSet.size() / 2 == graph.getVertices().size() - 1) {
+        return (edgeSet);
+    }
+    return (null);
+}
