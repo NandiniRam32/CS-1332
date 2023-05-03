@@ -1,8 +1,7 @@
 # CS-1332
 GT CS 1332: Data Structures and Algorithms- Spring 2023
 
-Files:
-
+Files:                                                                                                                                                                   
 HW 1- ArrayList                                                                                                                                                           
 HW 2- CircularSinglyLinkedList                                                                                                                                           
 HW 3- ArrayStack, LinkedStack, ArrayQueue, LinkedQueue                                                                                                                   
